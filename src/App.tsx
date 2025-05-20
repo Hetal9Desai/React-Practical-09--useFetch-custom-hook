@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from "react";
 import useFetch from "./Hooks/useFetch";
+import "./App.css";
 
 interface Post {
   id: number;
@@ -7,7 +8,7 @@ interface Post {
   body: string;
 }
 
-const MyComponent: React.FC = () => {
+const App: React.FC = () => {
   const [skip, setSkip] = useState(true);
   const [posts, setPosts] = useState<Post[] | null>(null);
 
@@ -33,44 +34,23 @@ const MyComponent: React.FC = () => {
 
   return (
     <div>
-      <div
-        style={{
-          position: "fixed",
-          top: 20,
-          left: "50%",
-          transform: "translateX(-50%)",
-          zIndex: 1000,
-        }}
-      >
-        {skip && (
-          <button onClick={handleFetch} style={{ marginRight: 10 }}>
-            Fetch Posts
-          </button>
+      <div className="fixed-buttons">
+        {skip ? (
+          <button onClick={handleFetch}>Fetch Posts</button>
+        ) : (
+          <button onClick={handleClear}>Skip Posts</button>
         )}
-        {!skip && <button onClick={handleClear}>Skip Posts</button>}
       </div>
 
-      <div style={{ marginTop: 80, padding: 20 }}>
-        {isLoading && (
-          <div
-            style={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              fontSize: "20px",
-              fontWeight: "bold",
-              zIndex: 999,
-            }}
-          >
-            Loading...
-          </div>
+      <div className="content">
+        {isLoading && <div className="loading-overlay">Loading...</div>}
+        {error && <p className="error-text">Error: {error}</p>}
+        {posts && (
+          <pre className="posts-pre">{JSON.stringify(posts, null, 2)}</pre>
         )}
-        {error && <p>Error: {error}</p>}
-        {posts && <pre>{JSON.stringify(posts, null, 2)}</pre>}
       </div>
     </div>
   );
 };
 
-export default MyComponent;
+export default App;
