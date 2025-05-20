@@ -1,35 +1,62 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
+import React, { useState, useCallback } from "react";
+import useFetch from "./Hooks/useFetch";
 
-function App() {
-  const [count, setCount] = useState(0);
-
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  );
+interface Post {
+  id: number;
+  title: string;
+  body: string;
 }
 
-export default App;
+const MyComponent: React.FC = () => {
+  const [skip, setSkip] = useState(true);
+  const [posts, setPosts] = useState<Post[] | null>(null);
+
+  const handleSuccess = useCallback((data: unknown) => {
+    setPosts(data as Post[]);
+  }, []);
+
+  const { isLoading, error } = useFetch({
+    url: "https://jsonplaceholder.typicode.com/posts",
+    method: "GET",
+    skip,
+    onSuccess: handleSuccess,
+  });
+
+  const handleFetch = () => {
+    setSkip(false);
+  };
+
+  const handleClear = () => {
+    setPosts(null);
+    setSkip(true);
+  };
+
+  return (
+    <div>
+      <div
+        style={{
+          position: "fixed",
+          top: 20,
+          left: "50%",
+          transform: "translateX(-50%)",
+          zIndex: 1000,
+        }}
+      >
+        {skip && (
+          <button onClick={handleFetch} style={{ marginRight: 10 }}>
+            Fetch Posts
+          </button>
+        )}
+        {!skip && <button onClick={handleClear}>Skip Posts</button>}
+      </div>
+
+      <div style={{ marginTop: 80, padding: 20 }}>
+        {isLoading && <p>Loading...</p>}
+        {error && <p>Error: {error}</p>}
+        {posts && <pre>{JSON.stringify(posts, null, 2)}</pre>}
+      </div>
+    </div>
+  );
+};
+
+export default MyComponent;
