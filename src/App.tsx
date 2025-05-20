@@ -51,7 +51,21 @@ const MyComponent: React.FC = () => {
       </div>
 
       <div style={{ marginTop: 80, padding: 20 }}>
-        {isLoading && <p>Loading...</p>}
+        {isLoading && (
+          <div
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              fontSize: "20px",
+              fontWeight: "bold",
+              zIndex: 999,
+            }}
+          >
+            Loading...
+          </div>
+        )}
         {error && <p>Error: {error}</p>}
         {posts && <pre>{JSON.stringify(posts, null, 2)}</pre>}
       </div>
