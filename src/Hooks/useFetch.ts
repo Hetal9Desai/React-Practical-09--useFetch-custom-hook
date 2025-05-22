@@ -5,27 +5,29 @@ interface UseFetchParams {
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   payload?: Record<string, unknown> | null;
   skip?: boolean;
-  onSuccess: (data: unknown) => void;
+  onSuccess?: (data: unknown) => void;
 }
 
-interface UseFetchResponse {
+interface UseFetchResponse<T = unknown> {
   isLoading: boolean;
   error: string | null;
+  data: T | null;
 }
 
 type FetchError = {
   message: string;
 };
 
-const useFetch = ({
+const useFetch = <T = unknown>({
   url,
   method = "GET",
   payload = null,
   skip = false,
   onSuccess,
-}: UseFetchParams): UseFetchResponse => {
+}: UseFetchParams): UseFetchResponse<T> => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [data, setData] = useState<T | null>(null);
 
   useEffect(() => {
     if (skip) return;
@@ -33,6 +35,7 @@ const useFetch = ({
     const fetchData = async () => {
       setIsLoading(true);
       setError(null);
+      setData(null);
 
       try {
         const options: RequestInit = {
@@ -52,8 +55,9 @@ const useFetch = ({
           throw new Error(`Error: ${res.statusText}`);
         }
 
-        const data = await res.json();
-        onSuccess(data);
+        const result = await res.json();
+        setData(result);
+        onSuccess?.(result);
       } catch (err) {
         const error = err as FetchError;
         setError(error.message);
@@ -65,7 +69,7 @@ const useFetch = ({
     fetchData();
   }, [url, method, payload, skip, onSuccess]);
 
-  return { isLoading, error };
+  return { isLoading, error, data };
 };
 
 export default useFetch;
