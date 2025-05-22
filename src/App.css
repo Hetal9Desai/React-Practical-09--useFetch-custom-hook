@@ -1,0 +1,36 @@
+.fixed-buttons {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+}
+
+.fixed-buttons button {
+  margin-right: 10px;
+}
+
+.content {
+  margin-top: 80px;
+  padding: 20px;
+  position: relative;
+}
+
+.loading-overlay {
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 20px;
+  font-weight: bold;
+  z-index: 999;
+}
+
+.error-text {
+  color: red;
+}
+
+.posts-pre {
+  white-space: pre-wrap;
+  word-break: break-all;
+}
