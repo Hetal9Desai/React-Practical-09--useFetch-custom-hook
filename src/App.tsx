@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import useFetch from "./Hooks/useFetch";
 import "./App.css";
 
@@ -12,16 +12,17 @@ const App: React.FC = () => {
   const [skip, setSkip] = useState(true);
   const [posts, setPosts] = useState<Post[] | null>(null);
 
-  const handleSuccess = useCallback((data: unknown) => {
-    setPosts(data as Post[]);
-  }, []);
-
-  const { isLoading, error } = useFetch({
+  const { isLoading, error, data } = useFetch<Post[]>({
     url: "https://jsonplaceholder.typicode.com/posts",
     method: "GET",
     skip,
-    onSuccess: handleSuccess,
   });
+
+  useEffect(() => {
+    if (data) {
+      setPosts(data);
+    }
+  }, [data]);
 
   const handleFetch = () => {
     setSkip(false);
@@ -38,7 +39,7 @@ const App: React.FC = () => {
         {skip ? (
           <button onClick={handleFetch}>Fetch Posts</button>
         ) : (
-          <button onClick={handleClear}>Skip Posts</button>
+          <button onClick={handleClear}>Clear Posts</button>
         )}
       </div>
 

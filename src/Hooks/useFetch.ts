@@ -5,7 +5,6 @@ interface UseFetchParams {
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   payload?: Record<string, unknown> | null;
   skip?: boolean;
-  onSuccess?: (data: unknown) => void;
 }
 
 interface UseFetchResponse<T = unknown> {
@@ -23,7 +22,6 @@ const useFetch = <T = unknown>({
   method = "GET",
   payload = null,
   skip = false,
-  onSuccess,
 }: UseFetchParams): UseFetchResponse<T> => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -57,7 +55,6 @@ const useFetch = <T = unknown>({
 
         const result = await res.json();
         setData(result);
-        onSuccess?.(result);
       } catch (err) {
         const error = err as FetchError;
         setError(error.message);
@@ -67,7 +64,7 @@ const useFetch = <T = unknown>({
     };
 
     fetchData();
-  }, [url, method, payload, skip, onSuccess]);
+  }, [url, method, payload, skip]);
 
   return { isLoading, error, data };
 };
