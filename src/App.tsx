@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import useFetch from "./Hooks/useFetch";
 import "./App.css";
 
@@ -10,7 +10,6 @@ interface Post {
 
 const App: React.FC = () => {
   const [skip, setSkip] = useState(true);
-  const [posts, setPosts] = useState<Post[] | null>(null);
 
   const { isLoading, error, data } = useFetch<Post[]>({
     url: "https://jsonplaceholder.typicode.com/posts",
@@ -18,18 +17,11 @@ const App: React.FC = () => {
     skip,
   });
 
-  useEffect(() => {
-    if (data) {
-      setPosts(data);
-    }
-  }, [data]);
-
   const handleFetch = () => {
     setSkip(false);
   };
 
   const handleClear = () => {
-    setPosts(null);
     setSkip(true);
   };
 
@@ -46,8 +38,8 @@ const App: React.FC = () => {
       <div className="content">
         {isLoading && <div className="loading-overlay">Loading...</div>}
         {error && <p className="error-text">Error: {error}</p>}
-        {posts && (
-          <pre className="posts-pre">{JSON.stringify(posts, null, 2)}</pre>
+        {data && (
+          <pre className="posts-pre">{JSON.stringify(data, null, 2)}</pre>
         )}
       </div>
     </div>
