@@ -1,3 +1,76 @@
+// import { useState, useEffect } from "react";
+
+// interface UseFetchParams {
+//   url: string;
+//   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+//   payload?: Record<string, unknown> | null;
+//   skip?: boolean;
+// }
+
+// interface UseFetchResponse<T = unknown> {
+//   isLoading: boolean;
+//   error: string | null;
+//   data: T | null;
+// }
+
+// type FetchError = {
+//   message: string;
+// };
+
+// const useFetch = <T = unknown>({
+//   url,
+//   method = "GET",
+//   payload = null,
+//   skip = false,
+// }: UseFetchParams): UseFetchResponse<T> => {
+//   const [isLoading, setIsLoading] = useState<boolean>(false);
+//   const [error, setError] = useState<string | null>(null);
+//   const [data, setData] = useState<T | null>(null);
+
+//   useEffect(() => {
+//     if (skip) return;
+
+//     const fetchData = async () => {
+//       setIsLoading(true);
+//       setError(null);
+//       setData(null);
+
+//       try {
+//         const options: RequestInit = {
+//           method,
+//           headers: {
+//             "Content-Type": "application/json",
+//           },
+//           body:
+//             method === "GET" || method === "DELETE"
+//               ? null
+//               : JSON.stringify(payload),
+//         };
+
+//         const res = await fetch(url, options);
+
+//         if (!res.ok) {
+//           throw new Error(`Error: ${res.statusText}`);
+//         }
+
+//         const result = await res.json();
+//         setData(result);
+//       } catch (err) {
+//         const error = err as FetchError;
+//         setError(error.message);
+//       } finally {
+//         setIsLoading(false);
+//       }
+//     };
+
+//     fetchData();
+//   }, [url, method, payload, skip]);
+
+//   return { isLoading, error, data };
+// };
+
+// export default useFetch;
+
 import { useState, useEffect } from "react";
 
 interface UseFetchParams {
@@ -13,17 +86,13 @@ interface UseFetchResponse<T = unknown> {
   data: T | null;
 }
 
-type FetchError = {
-  message: string;
-};
-
 const useFetch = <T = unknown>({
   url,
   method = "GET",
   payload = null,
   skip = false,
 }: UseFetchParams): UseFetchResponse<T> => {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<T | null>(null);
 
@@ -41,11 +110,11 @@ const useFetch = <T = unknown>({
           headers: {
             "Content-Type": "application/json",
           },
-          body:
-            method === "GET" || method === "DELETE"
-              ? null
-              : JSON.stringify(payload),
         };
+
+        if (method !== "GET" && method !== "DELETE") {
+          options.body = JSON.stringify(payload);
+        }
 
         const res = await fetch(url, options);
 
@@ -53,11 +122,16 @@ const useFetch = <T = unknown>({
           throw new Error(`Error: ${res.statusText}`);
         }
 
-        const result = await res.json();
+        const text = await res.text();
+        const result = text ? JSON.parse(text) : null;
+
         setData(result);
       } catch (err) {
-        const error = err as FetchError;
-        setError(error.message);
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("An unknown error occurred.");
+        }
       } finally {
         setIsLoading(false);
       }
